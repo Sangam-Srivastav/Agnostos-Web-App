@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1"> -->
+    <meta name="viewport" content="width=1200">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>AGNOSTOS - Anonymous Community Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+
+<body>
+    <!-- Matrix Background Canvas -->
+    <canvas id="matrix-bg" class="matrix-background"></canvas>
+
+    <!-- Scanlines Effect -->
+    <div class="scanlines"></div>
+
+    <!-- Landing Page -->
+    <div id="landing-page" class="page active">
+        <div class="landing-container">
+            <div class="glitch-title" data-text="AGNOSTOS">AGNOSTOS</div>
+            <div class="subtitle">A secret world where anonymity reigns</div>
+            <div class="description">Create, connect, and earn—without a trace.</div>
+
+            <div class="warning-box">
+                <div class="warning-text">⚠️ THERE IS NO MOVING BACK ⚠️</div>
+            </div>
+
+            <div class="landing-buttons">
+                <button class="btn-primary" onclick="showPage('login-page')">ENTER SYSTEM</button>
+                <button class="btn-secondary" onclick="showPage('register-page')">JOIN NETWORK</button>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-text">Anonymous Communities</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-text">AGNOS Currency</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-text">Encrypted Chats</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📁</div>
+                    <div class="feature-text">File Trading</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Page -->
+    <div id="register-page" class="page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2 class="glitch" data-text="JOIN NETWORK">JOIN NETWORK</h2>
+                <div class="warning-text">⚠️ THERE IS NO MOVING BACK ⚠️</div>
+            </div>
+
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-fullname" placeholder="Do not use your real name here" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="reg-username" placeholder="Choose your anonymous identity" required>
+                    <div id="username-status" class="status-text"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Minimum 8 characters" required>
+                    <div id="password-strength" class="status-text"></div>
+                </div>
+
+                <button type="submit" class="btn-primary full-width">CREATE IDENTITY</button>
+            </form>
+
+            <div class="auth-footer">
+                <span>Already have an identity? <a href="#" onclick="showPage('login-page')">Enter System</a></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2 class="glitch" data-text="ENTER SYSTEM">ENTER SYSTEM</h2>
+                <div class="warning-text">⚠️ THERE IS NO MOVING BACK ⚠️</div>
+            </div>
+
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="Your anonymous identity" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Your secret key" required>
+                </div>
+
+                <button type="submit" class="btn-primary full-width">ACCESS GRANTED</button>
+
+                <div id="login-error" class="error-message"></div>
+            </form>
+
+            <div class="auth-footer">
+                <span>Need new identity? <a href="#" onclick="showPage('register-page')">Join Network</a></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-page" class="page">
+        <nav class="top-nav">
+            <div class="nav-brand">AGNOSTOS</div>
+            <div class="nav-user">
+                <span id="nav-username">User</span>
+                <span class="agnos-balance">AGNOS: <span id="nav-balance">0</span></span>
+                <button onclick="logout()" class="btn-small">EXIT</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            <div class="sidebar">
+                <div class="sidebar-item active" data-section="profile">
+                    <span class="icon">👤</span> Profile
+                </div>
+                <div class="sidebar-item" data-section="communities">
+                    <span class="icon">👥</span> Communities
+                </div>
+                <div class="sidebar-item" data-section="files">
+                    <span class="icon">📁</span> Files
+                </div>
+                <div class="sidebar-item" data-section="services">
+                    <span class="icon">⚙️</span> Services
+                </div>
+                <div class="sidebar-item" data-section="chat">
+                    <span class="icon">💬</span> Chat
+                </div>
+                <div class="sidebar-item" data-section="wallet">
+                    <span class="icon">💰</span> Wallet
+                </div>
+            </div>
+
+            <div class="main-content">
+                <!-- Profile Section -->
+                <div id="profile-section" class="content-section active">
+                    <h3>Profile Overview</h3>
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="profile-balance">0</div>
+                            <div class="stat-label">AGNOS Balance</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profile-communities">0</div>
+                            <div class="stat-label">Communities</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profile-files">0</div>
+                            <div class="stat-label">Files Uploaded</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profile-services">0</div>
+                            <div class="stat-label">Services</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Communities Section -->
+                <div id="communities-section" class="content-section">
+                    <div class="section-header">
+                        <h3>Communities</h3>
+                        <button class="btn-primary" onclick="showModal('create-community-modal')">Create
+                            Community</button>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="my-communities">My Communities</button>
+                        <button class="tab-btn" data-tab="browse-communities">Browse</button>
+                    </div>
+
+                    <div id="my-communities" class="tab-content active">
+                        <div id="user-communities" class="communities-grid"></div>
+                    </div>
+
+                    <div id="browse-communities" class="tab-content">
+                        <div class="browse-controls">
+                            <select id="community-filter">
+                                <option value="">All Categories</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Art">Art</option>
+                                <option value="Education">Education</option>
+                                <option value="Gaming">Gaming</option>
+                                <option value="Music">Music</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Health">Health</option>
+                                <option value="Science">Science</option>
+                                <option value="Business">Business</option>
+                                <option value="Entertainment">Entertainment</option>
+                            </select>
+                        </div>
+                        <div id="all-communities" class="communities-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Files Section -->
+                <div id="files-section" class="content-section">
+                    <div class="section-header">
+                        <h3>Files</h3>
+                        <button class="btn-primary" onclick="showModal('upload-file-modal')">Upload File</button>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="my-files">My Files</button>
+                        <button class="tab-btn" data-tab="browse-files">Browse</button>
+                    </div>
+
+                    <div id="my-files" class="tab-content active">
+                        <div id="user-files" class="files-grid"></div>
+                    </div>
+
+                    <div id="browse-files" class="tab-content">
+                        <div class="browse-controls">
+                            <select id="file-filter">
+                                <option value="">All Types</option>
+                                <option value="Document">Document</option>
+                                <option value="Image">Image</option>
+                                <option value="Video">Video</option>
+                                <option value="Audio">Audio</option>
+                                <option value="Course">Course</option>
+                                <option value="Software">Software</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div id="all-files" class="files-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Services Section -->
+                <div id="services-section" class="content-section">
+                    <div class="section-header">
+                        <h3>Services</h3>
+                        <button class="btn-primary" onclick="showModal('create-service-modal')">Create Service</button>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="my-services">My Services</button>
+                        <button class="tab-btn" data-tab="browse-services">Browse</button>
+                    </div>
+
+                    <div id="my-services" class="tab-content active">
+                        <div id="user-services" class="services-grid"></div>
+                    </div>
+
+                    <div id="browse-services" class="tab-content">
+                        <div class="browse-controls">
+                            <select id="service-filter">
+                                <option value="">All Services</option>
+                                <option value="Tutoring">Tutoring</option>
+                                <option value="Graphic Design">Graphic Design</option>
+                                <option value="Programming">Programming</option>
+                                <option value="Writing">Writing</option>
+                                <option value="Translation">Translation</option>
+                                <option value="Consulting">Consulting</option>
+                                <option value="Photography">Photography</option>
+                                <option value="Video Editing">Video Editing</option>
+                                <option value="Web Design">Web Design</option>
+                                <option value="Data Analysis">Data Analysis</option>
+                            </select>
+                        </div>
+                        <div id="all-services" class="services-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Chat Section -->
+                <div id="chat-section" class="content-section">
+                    <div class="chat-container">
+                        <div class="chat-sidebar">
+                            <div class="chat-tabs">
+                                <button class="chat-tab-btn active" data-chat-tab="personal">Personal</button>
+                                <button class="chat-tab-btn" data-chat-tab="community">Community</button>
+                            </div>
+                            <div id="chat-list" class="chat-list"></div>
+                            <button class="btn-primary full-width" onclick="showModal('new-chat-modal')">New
+                                Chat</button>
+                        </div>
+                        <div class="chat-main">
+                            <div id="chat-messages" class="chat-messages">
+                                <div class="no-chat-selected">Select a chat to start messaging</div>
+                            </div>
+                            <div id="chat-input-area" class="chat-input-area" style="display: none;">
+                                <input type="text" id="chat-input" placeholder="Type your message...">
+                                <button onclick="sendMessage()" class="btn-primary">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Section -->
+                <div id="wallet-section" class="content-section">
+                    <h3>AGNOS Wallet</h3>
+                    <div class="wallet-balance">
+                        <div class="balance-display">
+                            <span class="balance-amount" id="wallet-balance">0</span>
+                            <span class="balance-currency">AGNOS</span>
+                        </div>
+                    </div>
+
+                    <div class="wallet-actions">
+                        <button class="btn-primary" onclick="showModal('send-agnos-modal')">Send AGNOS</button>
+                    </div>
+
+                    <div class="transaction-history">
+                        <h4>Transaction History</h4>
+                        <div id="transaction-list" class="transaction-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div id="requests-container">
+            <div class="request-tabs">
+                <div class="request-tab active" data-tab="my-requests">My Requests</div>
+                <div class="request-tab" data-tab="admin-requests">Admin Approvals</div>
+            </div>
+
+            <div id="my-requests" class="request-content active">
+                <div id="join-requests-list"></div>
+            </div>
+
+            <div id="admin-requests" class="request-content">
+                <div id="admin-requests-list"></div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Create Community Modal -->
+    <div id="create-community-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Community</h3>
+                <span class="close" onclick="hideModal('create-community-modal')">&times;</span>
+            </div>
+            <form id="create-community-form">
+                <div class="form-group">
+                    <label>Community Name</label>
+                    <input type="text" id="community-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="community-description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="community-category" required>
+                        <option value="">Select Category</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Art">Art</option>
+                        <option value="Education">Education</option>
+                        <option value="Gaming">Gaming</option>
+                        <option value="Music">Music</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Health">Health</option>
+                        <option value="Science">Science</option>
+                        <option value="Business">Business</option>
+                        <option value="Entertainment">Entertainment</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="community-is-private"> Private Community
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary full-width">Create Community</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload File Modal -->
+    <div id="upload-file-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upload File</h3>
+                <span class="close" onclick="hideModal('upload-file-modal')">&times;</span>
+            </div>
+            <form id="upload-file-form">
+                <input type="hidden" id="file-community-id">
+                <div class="form-group">
+                    <label>File</label>
+                    <input type="file" id="file-upload" required>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="file-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="file-description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="file-category" required>
+                        <option value="">Select Category</option>
+                        <option value="Document">Document</option>
+                        <option value="Image">Image</option>
+                        <option value="Video">Video</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Course">Course</option>
+                        <option value="Software">Software</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price (AGNOS)</label>
+                    <input type="number" id="file-price" min="0" value="0">
+                </div>
+                <button type="submit" class="btn-primary full-width">Upload File</button>
+            </form>
+
+
+            <div id="upload-progress-container" style="display: none; margin-top: 10px;">
+                <div id="upload-progress-bar"
+                    style="width: 0%; height: 20px; background: #00FF41; transition: width 0.3s;"></div>
+                <p id="upload-progress-text">Uploading: 0%</p>
+                <p id="upload-complete-message" style="display: none; color: #00FF41;">Upload Complete!</p>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+
+    <!-- Create Service Modal -->
+    <div id="create-service-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Service</h3>
+                <span class="close" onclick="hideModal('create-service-modal')">&times;</span>
+            </div>
+            <form id="create-service-form">
+                <input type="hidden" id="service-community-id">
+                <div class="form-group">
+                    <label>Service Title</label>
+                    <input type="text" id="service-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="service-description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="service-category" required>
+                        <option value="">Select Category</option>
+                        <option value="Tutoring">Tutoring</option>
+                        <option value="Graphic Design">Graphic Design</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Writing">Writing</option>
+                        <option value="Translation">Translation</option>
+                        <option value="Consulting">Consulting</option>
+                        <option value="Photography">Photography</option>
+                        <option value="Video Editing">Video Editing</option>
+                        <option value="Web Design">Web Design</option>
+                        <option value="Data Analysis">Data Analysis</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price (AGNOS)</label>
+                    <input type="number" id="service-price" min="0" value="0">
+                </div>
+                <button type="submit" class="btn-primary full-width">Create Service</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- New Chat Modal -->
+    <div id="new-chat-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Start New Chat</h3>
+                <span class="close" onclick="hideModal('new-chat-modal')">&times;</span>
+            </div>
+            <form id="new-chat-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="chat-username" placeholder="Enter username or community name to chat with"
+                        required>
+                </div>
+                <button type="submit" class="btn-primary full-width">Start Chat</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Send AGNOS Modal -->
+    <div id="send-agnos-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send AGNOS</h3>
+                <span class="close" onclick="hideModal('send-agnos-modal')">&times;</span>
+            </div>
+            <form id="send-agnos-form">
+                <div class="form-group">
+                    <label>Recipient Username</label>
+                    <input type="text" id="agnos-recipient" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" id="agnos-amount" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Purpose</label>
+                    <select id="agnos-purpose" required>
+                        <option value="">Select Purpose</option>
+                        <option value="Service Payment">Service Payment</option>
+                        <option value="File Purchase">File Purchase</option>
+                        <option value="Course Purchase">Course Purchase</option>
+                        <option value="Tip">Tip</option>
+                        <option value="Donation">Donation</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary full-width">Send AGNOS</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Join Requests Section -->
+    <!-- <div id="join-requests-section" class="content-section">
+        <h2>Join Requests</h2>
+        <div id="join-requests"></div>
+    </div> -->
+
+    <!-- Admin Requests Section -->
+    <!-- <div id="admin-requests-section" class="content-section">
+        <h2>Admin Requests</h2>
+        <div id="admin-requests"></div>
+    </div> -->
+
+    <!-- Community Page -->
+
+
+    <!-- 
+    <div id="community-page" class="page">
+        <div class="community-container">
+            <button id="community-back-btn" class="btn-primary" onclick="showPage('dashboard-page')">
+                ← Back to Dashboard
+            </button>
+
+            <div class="community-header">
+                <h1 id="community-header">Community Name</h1>
+                <p id="community-description"></p>
+            </div>
+
+            <div class="community-tabs">
+                <button class="community-tab-btn active" data-tab="chat">Chat</button>
+                <button class="community-tab-btn" data-tab="files">Files</button>
+                <button class="community-tab-btn" data-tab="services">Services</button>
+                <button class="community-tab-btn" data-tab="members">Members</button>
+            </div>
+
+            <div id="community-chat" class="community-tab-content active">
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="community-chat-input" placeholder="Message the community...">
+                    <button class="btn-primary" onclick="sendCommunityMessage()">Send</button>
+                </div>
+            </div>
+
+            <div id="community-files" class="community-tab-content"></div>
+
+            <div id="community-services" class="community-tab-content"></div>
+
+            <div id="community-members" class="community-tab-content"></div>
+
+            <div class="community-actions">
+                <button class="btn-primary" onclick="showModal('upload-community-file-modal')">
+                    Upload File
+                </button>
+                <button class="btn-secondary" onclick="showModal('create-community-service-modal')">
+                    Offer Service
+                </button>
+            </div>
+        </div>
+    </div> -->
+
+
+
+
+    <div id="community-page" class="page">
+        <div class="community-container">
+            <button id="community-back-btn" class="btn-primary" onclick="showPage('dashboard-page')">
+                ← Back to Dashboard
+            </button>
+
+            <div class="community-header">
+                <h1 id="community-header">Community Name</h1>
+                <p id="community-description"></p>
+            </div>
+
+            <div class="community-tabs">
+                <button class="community-tab-btn active" data-tab="chat"
+                    onclick="switchCommunityTab('chat')">Chat</button>
+                <button class="community-tab-btn" data-tab="files" onclick="switchCommunityTab('files')">Files</button>
+                <button class="community-tab-btn" data-tab="services"
+                    onclick="switchCommunityTab('services')">Services</button>
+                <button class="community-tab-btn" data-tab="members"
+                    onclick="switchCommunityTab('members')">Members</button>
+            </div>
+
+            <div id="community-chat" class="community-tab-content active">
+                <div id="community-chat-messages" class="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="community-chat-input" placeholder="Message the community...">
+                    <button class="btn-primary" onclick="sendCommunityMessage()">Send</button>
+                </div>
+            </div>
+
+            <div id="community-files" class="community-tab-content">
+                <h3>Community Files</h3>
+                <div id="community-files-list" class="community-grid"></div>
+                <div class="community-actions">
+                    <button class="btn-primary" onclick="showModal('upload-file-modal')">
+                        Upload File to Community
+                    </button>
+                </div>
+            </div>
+
+            <div id="community-services" class="community-tab-content">
+                <h3>Community Services</h3>
+                <div id="community-services-list" class="community-grid"></div>
+                <div class="community-actions">
+                    <button class="btn-primary" onclick="showModal('create-service-modal')">
+                        Offer Service to Community
+                    </button>
+                </div>
+            </div>
+
+            <div id="community-members" class="community-tab-content">
+                <h3>Community Members</h3>
+                <div id="community-members-list" class="members-list"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- <div id="community-page" class="page">
+        <div class="container">
+            <button id="community-back-btn" class="btn-primary">Back to Dashboard</button>
+            <h2 id="community-header"></h2>
+            <div class="content-section active">
+                <h3>Community Chat</h3>
+                <div id="chat-messages"></div>
+                <div id="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Type a message...">
+                    <button class="btn-primary" onclick="sendMessage()">Send</button>
+                </div>
+                <h3>Community Files</h3>
+                <div id="community-files"></div>
+                <h3>Community Services</h3>
+                <div id="community-services"></div>
+            </div>
+        </div>
+    </div> -->
+
+
+
+
+    <!-- Add this to index.html -->
+
+
+
+    <!-- 
+
+    <div id="requests-container">
+        <div class="request-tabs">
+            <div class="request-tab active" data-tab="my-requests">My Requests</div>
+            <div class="request-tab" data-tab="admin-requests">Admin Approvals</div>
+        </div>
+
+        <div id="my-requests" class="request-content active">
+            <div id="join-requests-list"></div>
+        </div>
+
+        <div id="admin-requests" class="request-content">
+            <div id="admin-requests-list"></div>
+        </div>
+    </div> -->
+
+
+
+
+    <!-- <div id="community-requests-section" class="content-section">
+        <h3>Community Requests</h3>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="my-requests">My Requests</button>
+            <button class="tab-btn" data-tab="admin-requests">Admin Approvals</button>
+        </div>
+
+        <div id="my-requests" class="tab-content active">
+            <div id="join-requests" class="requests-list"></div>
+        </div>
+
+        <div id="admin-requests" class="tab-content">
+            <div id="admin-requests-list" class="requests-list"></div>
+        </div>
+    </div> -->
+
+    <script src="app.js"></script>
+</body>
+
+</html>
