@@ -86,8 +86,8 @@ Once you enter the AGNOSTOS system, you become part of an anonymous network desi
 
 1. **Clone the Repository**
 ```bash
-git clone https://github.com/Sangam-Srivastav
-cd agnostos
+git clone https://github.com/Sangam-Srivastav/Agnostos-Web-App.git
+cd Agnostos-Web-App
 ```
 
 2. **Install Dependencies**
